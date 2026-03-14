@@ -1,0 +1,22 @@
+# Gradle wrapper (会自动下载)
+gradle/wrapper/gradle-wrapper.jar
+
+# Build outputs
+build/
+app/build/
+*.apk
+*.aab
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+
+# Local configuration
+local.properties
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,10 @@
+# 本地配置文件模板
+# 复制此文件为 local.properties 并填入你的配置
+
+# OpenWeatherMap API Key
+# 访问 https://openweathermap.org/api 获取免费 API Key
+# 注意：免费 API Key 需要注册账号，但有 60 次/分钟的免费额度
+OPENWEATHER_API_KEY=demo
+
+# 或者你可以直接使用 demo 密钥（功能受限）
+# 如果留空为 demo，将使用有限的演示数据

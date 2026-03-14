@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Cloud -->
+    <path
+        android:fillColor="#546E7A"
+        android:pathData="M18.5,10
+                         c-0.3,0 -0.6,0.03 -0.9,0.08
+                         C17.3,8.42 15.83,7.2 14,7.2
+                         c-1.48,0 -2.78,0.76 -3.55,1.91
+                         C10.17,9.04 9.85,9 9.5,9
+                         C7.01,9 5,11.01 5,13.5
+                         S7.01,18 9.5,18
+                         h9
+                         c2.48,0 4.5,-2.02 4.5,-4.5
+                         S20.98,10 18.5,10z"/>
+    <!-- Lightning -->
+    <path
+        android:fillColor="#FFEB3B"
+        android:pathData="M11,18 L13,18 L12,22 L14,18 L12,18 L13,14 L11,14 Z"/>
+</vector>

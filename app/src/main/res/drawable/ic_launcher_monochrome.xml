@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Simplified monochrome sun icon -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M54,36
+                         m-12,0
+                         a12,12 0,1 1,24 0
+                         a12,12 0,1 1,-24 0"/>
+    
+    <!-- Sun rays -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M54,18 L54,12"
+        android:strokeWidth="2"
+        android:strokeColor="#000000"/>
+    <path
+        android:fillColor="#000000"
+        android:pathData="M54,60 L54,66"
+        android:strokeWidth="2"
+        android:strokeColor="#000000"/>
+    <path
+        android:fillColor="#000000"
+        android:pathData="M30,36 L24,36"
+        android:strokeWidth="2"
+        android:strokeColor="#000000"/>
+    <path
+        android:fillColor="#000000"
+        android:pathData="M78,36 L84,36"
+        android:strokeWidth="2"
+        android:strokeColor="#000000"/>
+    <path
+        android:fillColor="#000000"
+        android:pathData="M37,23 L33,19"
+        android:strokeWidth="2"
+        android:strokeColor="#000000"/>
+    <path
+        android:fillColor="#000000"
+        android:pathData="M71,23 L75,19"
+        android:strokeWidth="2"
+        android:strokeColor="#000000"/>
+    <path
+        android:fillColor="#000000"
+        android:pathData="M37,49 L33,53"
+        android:strokeWidth="2"
+        android:strokeColor="#000000"/>
+    <path
+        android:fillColor="#000000"
+        android:pathData="M71,49 L75,53"
+        android:strokeWidth="2"
+        android:strokeColor="#000000"/>
+</vector>

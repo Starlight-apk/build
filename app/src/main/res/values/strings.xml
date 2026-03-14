@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">极光天气</string>
+    <string name="weather_clear">晴</string>
+    <string name="weather_cloudy">多云</string>
+    <string name="weather_partly_cloudy">少云</string>
+    <string name="weather_rain">雨</string>
+    <string name="weather_drizzle">小雨</string>
+    <string name="weather_thunderstorm">雷暴</string>
+    <string name="weather_snow">雪</string>
+    <string name="weather_fog">雾</string>
+    <string name="weather_wind">风</string>
+    <string name="weather_haze">霾</string>
+    
+    <!-- Navigation -->
+    <string name="nav_weather">天气</string>
+    <string name="nav_forecast">预报</string>
+    <string name="nav_map">地图</string>
+    <string name="nav_cities">城市</string>
+    <string name="nav_settings">设置</string>
+    
+    <!-- Weather Details -->
+    <string name="humidity">湿度</string>
+    <string name="wind_speed">风速</string>
+    <string name="pressure">气压</string>
+    <string name="visibility">能见度</string>
+    <string name="feels_like">体感</string>
+    <string name="uv_index">紫外线</string>
+    <string name="sunrise">日出</string>
+    <string name="sunset">日落</string>
+    
+    <!-- Locations -->
+    <string name="location_current">当前位置</string>
+    <string name="location_search">搜索城市</string>
+    <string name="location_add">添加城市</string>
+    <string name="location_delete">删除城市</string>
+    
+    <!-- Settings -->
+    <string name="settings_general">通用设置</string>
+    <string name="settings_notifications">通知设置</string>
+    <string name="settings_about">关于</string>
+    <string name="settings_refresh_interval">刷新间隔</string>
+    <string name="settings_temperature_unit">温度单位</string>
+    <string name="settings_theme">主题</string>
+    <string name="settings_language">语言</string>
+    
+    <!-- Notifications -->
+    <string name="notification_weather_update">天气更新</string>
+    <string name="notification_weather_alert">天气预警</string>
+    <string name="notification_channel_weather">天气通知</string>
+    <string name="notification_channel_alert">预警通知</string>
+    
+    <!-- Errors -->
+    <string name="error_network">网络连接失败，请检查网络设置</string>
+    <string name="error_location">获取位置失败</string>
+    <string name="error_weather_data">获取天气数据失败</string>
+    <string name="error_permission">需要位置权限</string>
+    
+    <!-- Onboarding -->
+    <string name="onboarding_title_1">欢迎使用极光天气</string>
+    <string name="onboarding_title_2">实时天气信息</string>
+    <string name="onboarding_title_3">多城市管理</string>
+    <string name="onboarding_desc_1">获取您所在位置的精准天气预报</string>
+    <string name="onboarding_desc_2">随时查看未来 7 天天气趋势</string>
+    <string name="onboarding_desc_3">添加多个城市，一键切换查看</string>
+    <string name="onboarding_get_started">开始使用</string>
+    <string name="onboarding_next">下一步</string>
+    <string name="onboarding_skip">跳过</string>
+    
+    <!-- Units -->
+    <string name="unit_celsius">°C</string>
+    <string name="unit_fahrenheit">°F</string>
+    <string name="unit_meters_per_second">m/s</string>
+    <string name="unit_kilometers_per_hour">km/h</string>
+    <string name="unit_hectopascal">hPa</string>
+    <string name="unit_kilometers">km</string>
+    
+    <!-- Time -->
+    <string name="time_today">今天</string>
+    <string name="time_tomorrow">明天</string>
+    <string name="time_minutes_ago">%d 分钟前</string>
+    <string name="time_updated">更新时间</string>
+</resources>
