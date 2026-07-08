@@ -26,7 +26,7 @@ jobs:
         run: flutter create --project-name startool --org com.starpak .
 
       - name: 构建 APK
-        run: flutter build apk --debug
+        run: flutter build apk --debug --target-platform android-arm64 --split-per-abi
 
       - name: 删除旧 Release
         run: |
