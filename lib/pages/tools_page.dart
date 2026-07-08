@@ -3,55 +3,48 @@ import 'system_detail_page.dart';
 import 'network_tools_page.dart';
 import '../main.dart';
 
-class ToolsPage extends StatefulWidget {
+class ToolsPage extends StatelessWidget {
   const ToolsPage({super.key});
 
-  @override
-  State<ToolsPage> createState() => _ToolsPageState();
-}
-
-class _ToolsPageState extends State<ToolsPage> {
-  String? _currentPage;
+  void _openPage(BuildContext context, Widget page, String title) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => Scaffold(
+          appBar: AppBar(
+            title: Text(title),
+          ),
+          body: page,
+        ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(1, 0),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 250),
+        reverseTransitionDuration: const Duration(milliseconds: 200),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    if (_currentPage == 'system') {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('系统信息'),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => setState(() => _currentPage = null),
-          ),
-        ),
-        body: const SystemDetailPage(),
-      );
-    }
-    if (_currentPage == 'network') {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('网络工具'),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => setState(() => _currentPage = null),
-          ),
-        ),
-        body: const NetworkToolsPage(),
-      );
-    }
 
     return Scaffold(
       appBar: AppBar(title: const Text('工具箱')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _buildCard(theme, Icons.info_outline, '系统信息', '查看 CPU、内存、磁盘等详细信息', Colors.blue, 'system'),
+          _buildCard(theme, Icons.info_outline, '系统信息', '查看 CPU、内存、磁盘等详细信息', Colors.blue, () => _openPage(context, const SystemDetailPage(), '系统信息')),
           const SizedBox(height: 12),
           _buildCard(theme, Icons.speed, '性能监控', '实时监控系统性能', Colors.green, null),
           const SizedBox(height: 12),
-          _buildCard(theme, Icons.wifi, '网络工具', '网络状态与诊断、延迟折线图', Colors.teal, 'network'),
+          _buildCard(theme, Icons.wifi, '网络工具', '网络状态与诊断、延迟折线图', Colors.teal, () => _openPage(context, const NetworkToolsPage(), '网络工具')),
           const SizedBox(height: 12),
           _buildCard(theme, Icons.storage, '磁盘管理', '磁盘空间分析', Colors.orange, null),
           const SizedBox(height: 12),
@@ -61,7 +54,7 @@ class _ToolsPageState extends State<ToolsPage> {
     );
   }
 
-  Widget _buildCard(ThemeData theme, IconData icon, String title, String subtitle, Color color, String? page) {
+  Widget _buildCard(ThemeData theme, IconData icon, String title, String subtitle, Color color, VoidCallback? onTap) {
     return Card(
       child: ListTile(
         leading: CircleAvatar(backgroundColor: color.withOpacity(0.2), child: Icon(icon, color: color)),
@@ -69,8 +62,8 @@ class _ToolsPageState extends State<ToolsPage> {
         subtitle: Text(subtitle),
         trailing: const Icon(Icons.chevron_right),
         onTap: () {
-          if (page != null) {
-            setState(() => _currentPage = page);
+          if (onTap != null) {
+            onTap();
           } else {
             notificationService.show('$title 功能开发中，敬请期待！');
           }
