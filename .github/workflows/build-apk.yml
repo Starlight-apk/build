@@ -133,12 +133,33 @@ jobs:
           EOF
           echo "===== 原生启动页添加完毕 ====="
 
-      - name: 修改 AndroidManifest（SplashActivity 为启动页）
+      - name: 覆盖 AndroidManifest（SplashActivity 为启动页）
         run: |
-          echo "===== 修改 AndroidManifest ====="
-          sed -i 's|android:name="\.MainActivity"|android:name=".SplashActivity"|' android/app/src/main/AndroidManifest.xml
-          sed -i '/android:name="\.SplashActivity"/a\        <activity android:name=".MainActivity" android:exported="false" />' android/app/src/main/AndroidManifest.xml
-          echo "===== AndroidManifest 修改完毕 ====="
+          echo "===== 覆盖 AndroidManifest ====="
+          cat > android/app/src/main/AndroidManifest.xml << 'EOF'
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <uses-permission android:name="android.permission.INTERNET" />
+              <application
+                  android:label="Startool"
+                  android:name="${applicationName}"
+                  android:icon="@mipmap/ic_launcher"
+                  android:roundIcon="@mipmap/ic_launcher_round">
+                  <activity
+                      android:name=".SplashActivity"
+                      android:exported="true"
+                      android:theme="@style/LaunchTheme">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
+                      </intent-filter>
+                  </activity>
+                  <activity
+                      android:name=".MainActivity"
+                      android:exported="false" />
+              </application>
+          </manifest>
+          EOF
+          echo "===== AndroidManifest 覆盖完毕 ====="
 
       - name: 构建 APK (arm64-v8a)
         run: flutter build apk --debug --target-platform android-arm64
