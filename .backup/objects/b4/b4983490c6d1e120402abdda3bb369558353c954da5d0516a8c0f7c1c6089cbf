@@ -1,6 +1,0 @@
-.backup/
-build/
-*.apk
-*.aab
-.DS_Store
-local.properties
