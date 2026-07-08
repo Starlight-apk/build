@@ -8,7 +8,7 @@ class NetworkToolsPage extends StatefulWidget {
   State<NetworkToolsPage> createState() => _NetworkToolsPageState();
 }
 
-class _NetworkToolsPageState extends State<NetworkToolsPage> {
+class _NetworkToolsPageState extends State<NetworkToolsPage> with TickerProviderStateMixin {
   int _tabIndex = 0;
 
   @override
