@@ -22,6 +22,9 @@ jobs:
       - name: 安装依赖
         run: flutter pub get
 
+      - name: 生成 Android 配置
+        run: flutter create --project-name startool --org com.starpak .
+
       - name: 构建 APK
         run: flutter build apk --debug
 
