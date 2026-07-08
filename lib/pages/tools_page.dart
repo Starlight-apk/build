@@ -6,16 +6,11 @@ import '../main.dart';
 class ToolsPage extends StatelessWidget {
   const ToolsPage({super.key});
 
-  void _openPage(BuildContext context, Widget page, String title) {
+  void _openPage(BuildContext context, Widget page) {
     Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => Scaffold(
-          appBar: AppBar(
-            title: Text(title),
-          ),
-          body: page,
-        ),
+        pageBuilder: (context, animation, secondaryAnimation) => page,
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return SlideTransition(
             position: Tween<Offset>(
@@ -40,11 +35,11 @@ class ToolsPage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _buildCard(theme, Icons.info_outline, '系统信息', '查看 CPU、内存、磁盘等详细信息', Colors.blue, () => _openPage(context, const SystemDetailPage(), '系统信息')),
+          _buildCard(theme, Icons.info_outline, '系统信息', '查看 CPU、内存、磁盘等详细信息', Colors.blue, () => _openPage(context, const SystemDetailPage())),
           const SizedBox(height: 12),
           _buildCard(theme, Icons.speed, '性能监控', '实时监控系统性能', Colors.green, null),
           const SizedBox(height: 12),
-          _buildCard(theme, Icons.wifi, '网络工具', '网络状态与诊断、延迟折线图', Colors.teal, () => _openPage(context, const NetworkToolsPage(), '网络工具')),
+          _buildCard(theme, Icons.wifi, '网络工具', '网络状态与诊断、延迟折线图', Colors.teal, () => _openPage(context, const NetworkToolsPage())),
           const SizedBox(height: 12),
           _buildCard(theme, Icons.storage, '磁盘管理', '磁盘空间分析', Colors.orange, null),
           const SizedBox(height: 12),
