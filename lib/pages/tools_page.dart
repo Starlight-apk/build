@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'system_detail_page.dart';
+import 'network_tools_page.dart';
+import '../main.dart';
 
 class ToolsPage extends StatefulWidget {
   const ToolsPage({super.key});
@@ -18,6 +20,9 @@ class _ToolsPageState extends State<ToolsPage> {
     if (_currentPage == 'system') {
       return const SystemDetailPage();
     }
+    if (_currentPage == 'network') {
+      return const NetworkToolsPage();
+    }
 
     return Scaffold(
       appBar: AppBar(title: const Text('工具箱')),
@@ -26,13 +31,13 @@ class _ToolsPageState extends State<ToolsPage> {
         children: [
           _buildCard(theme, Icons.info_outline, '系统信息', '查看 CPU、内存、磁盘等详细信息', Colors.blue, 'system'),
           const SizedBox(height: 12),
-          _buildCard(theme, Icons.speed, '性能监控', '实时监控系统性能（开发中）', Colors.green, null),
+          _buildCard(theme, Icons.speed, '性能监控', '实时监控系统性能', Colors.green, null),
           const SizedBox(height: 12),
-          _buildCard(theme, Icons.wifi, '网络工具', '网络状态与诊断（开发中）', Colors.teal, null),
+          _buildCard(theme, Icons.wifi, '网络工具', '网络状态与诊断、延迟折线图', Colors.teal, 'network'),
           const SizedBox(height: 12),
-          _buildCard(theme, Icons.storage, '磁盘管理', '磁盘空间分析（开发中）', Colors.orange, null),
+          _buildCard(theme, Icons.storage, '磁盘管理', '磁盘空间分析', Colors.orange, null),
           const SizedBox(height: 12),
-          _buildCard(theme, Icons.battery_std, '电池信息', '电池状态与健康（开发中）', Colors.purple, null),
+          _buildCard(theme, Icons.battery_std, '电池信息', '电池状态与健康', Colors.purple, null),
         ],
       ),
     );
@@ -45,7 +50,13 @@ class _ToolsPageState extends State<ToolsPage> {
         title: Text(title),
         subtitle: Text(subtitle),
         trailing: const Icon(Icons.chevron_right),
-        onTap: page != null ? () => setState(() => _currentPage = page) : null,
+        onTap: () {
+          if (page != null) {
+            setState(() => _currentPage = page);
+          } else {
+            notificationService.show('$title 功能开发中，敬请期待！');
+          }
+        },
       ),
     );
   }

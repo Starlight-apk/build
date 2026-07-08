@@ -1,36 +1,30 @@
 import 'package:flutter/material.dart';
+import '../main.dart';
 
-class SettingsPage extends StatefulWidget {
+class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
-  @override
-  State<SettingsPage> createState() => _SettingsPageState();
-}
-
-class _SettingsPageState extends State<SettingsPage> {
-  bool _darkMode = true;
-  Color _seedColor = const Color(0xFF3f51b5);
-
-  final List<Color> _themeColors = [
-    const Color(0xFF3f51b5), // 靛蓝
-    const Color(0xFF1976d2), // 蓝色
-    const Color(0xFF00796b), // 青色
-    const Color(0xFF2e7d32), // 绿色
-    const Color(0xFFed6c02), // 橙色
-    const Color(0xFFd32f2f), // 红色
-    const Color(0xFF9c27b0), // 紫色
-    const Color(0xFFe91e63), // 粉色
+  final List<Color> _themeColors = const [
+    Color(0xFF3f51b5),
+    Color(0xFF1976d2),
+    Color(0xFF00796b),
+    Color(0xFF2e7d32),
+    Color(0xFFed6c02),
+    Color(0xFFd32f2f),
+    Color(0xFF9c27b0),
+    Color(0xFFe91e63),
   ];
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final settings = settingsService;
+
     return Scaffold(
       appBar: AppBar(title: const Text('设置')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // 外观
           Card(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,8 +42,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 SwitchListTile(
                   title: const Text('深色模式'),
                   subtitle: const Text('切换深色/浅色主题'),
-                  value: _darkMode,
-                  onChanged: (v) => setState(() => _darkMode = v),
+                  value: settings.darkMode,
+                  onChanged: (v) => settings.setDarkMode(v),
                 ),
                 const Divider(height: 1),
                 Padding(
@@ -63,9 +57,9 @@ class _SettingsPageState extends State<SettingsPage> {
                         spacing: 12,
                         runSpacing: 12,
                         children: _themeColors.map((color) {
-                          final isSelected = _seedColor.value == color.value;
+                          final isSelected = settings.seedColor.value == color.value;
                           return GestureDetector(
-                            onTap: () => setState(() => _seedColor = color),
+                            onTap: () => settings.setSeedColor(color),
                             child: Container(
                               width: 36,
                               height: 36,
@@ -87,8 +81,6 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
           const SizedBox(height: 12),
-
-          // 关于
           Card(
             child: Column(
               children: [

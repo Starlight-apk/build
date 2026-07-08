@@ -4,11 +4,14 @@ import 'pages/tools_page.dart';
 import 'pages/settings_page.dart';
 import 'pages/about_page.dart';
 import 'services/notification_service.dart';
+import 'services/settings_service.dart';
 
-final GlobalKey<_MainScreenState> mainScreenKey = GlobalKey();
 final NotificationService notificationService = NotificationService();
+final SettingsService settingsService = SettingsService();
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await settingsService.load();
   runApp(const StarToolApp());
 }
 
@@ -17,15 +20,20 @@ class StarToolApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'StarTool',
-      theme: ThemeData(
-        colorSchemeSeed: const Color(0xFF3f51b5),
-        useMaterial3: true,
-        brightness: Brightness.dark,
-      ),
-      home: const MainScreen(key: mainScreenKey),
-      debugShowCheckedModeBanner: false,
+    return ListenableBuilder(
+      listenable: settingsService,
+      builder: (context, _) {
+        return MaterialApp(
+          title: 'StarTool',
+          theme: ThemeData(
+            colorSchemeSeed: settingsService.seedColor,
+            useMaterial3: true,
+            brightness: settingsService.darkMode ? Brightness.dark : Brightness.light,
+          ),
+          home: const MainScreen(),
+          debugShowCheckedModeBanner: false,
+        );
+      },
     );
   }
 }
@@ -46,8 +54,6 @@ class _MainScreenState extends State<MainScreen> {
     SettingsPage(),
     AboutPage(),
   ];
-
-  final List<String> _titles = const ['StarTool', '工具箱', '设置', '关于'];
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +100,6 @@ class _MainScreenState extends State<MainScreen> {
       body: Stack(
         children: [
           _pages[_currentIndex],
-          // 通知叠加层
           ListenableBuilder(
             listenable: notificationService,
             builder: (context, _) {
