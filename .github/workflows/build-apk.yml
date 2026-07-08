@@ -49,6 +49,18 @@ jobs:
                   android:gravity="center">
                   <bitmap android:src="@mipmap/ic_launcher" />
               </item>
+              <item
+                  android:width="200dp"
+                  android:height="4dp"
+                  android:gravity="center|bottom"
+                  android:bottom="64dp">
+                  <inset xmlns:android="http://schemas.android.com/apk/res/android"
+                      android:drawable="@android:drawable/progress_indeterminate_horizontal"
+                      android:insetLeft="0dp"
+                      android:insetRight="0dp"
+                      android:insetTop="0dp"
+                      android:insetBottom="0dp" />
+              </item>
           </layer-list>
           EOF
           cat > android/app/src/main/res/values/styles.xml << 'EOF'
