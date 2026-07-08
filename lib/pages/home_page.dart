@@ -31,9 +31,10 @@ class _HomePageState extends State<HomePage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          _buildOverviewCard(theme, info.os),
+          const SizedBox(height: 12),
           _buildProgressCard(
             theme: theme,
-            icon: Icons.memory,
             title: 'CPU',
             value: info.cpu.usage,
             subtitle: info.cpu.model,
@@ -43,7 +44,6 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 12),
           _buildProgressCard(
             theme: theme,
-            icon: Icons.memory,
             title: '内存',
             value: info.ram.usage,
             subtitle: '${info.ram.used.toStringAsFixed(1)} GB / ${info.ram.total.toStringAsFixed(1)} GB',
@@ -59,9 +59,41 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _buildOverviewCard(ThemeData theme, OsInfo os) {
+    return Card(
+      color: theme.colorScheme.surfaceVariant,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('系统概览', style: theme.textTheme.labelLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+            const SizedBox(height: 12),
+            _overviewRow(theme, '设备名称', os.hostname),
+            _overviewRow(theme, '操作系统', os.distro),
+            _overviewRow(theme, '架构', os.arch),
+            _overviewRow(theme, '内核', os.kernel),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _overviewRow(ThemeData theme, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+          Text(value, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface)),
+        ],
+      ),
+    );
+  }
+
   Widget _buildProgressCard({
     required ThemeData theme,
-    required IconData icon,
     required String title,
     required double value,
     required String subtitle,
@@ -69,50 +101,18 @@ class _HomePageState extends State<HomePage> {
     required Color color,
   }) {
     return Card(
+      color: theme.colorScheme.surfaceVariant,
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              width: 72,
-              height: 72,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  SizedBox(
-                    width: 64,
-                    height: 64,
-                    child: CircularProgressIndicator(
-                      value: value / 100,
-                      strokeWidth: 6,
-                      backgroundColor: color.withOpacity(0.15),
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        value < 50 ? color : (value < 80 ? Colors.orange : Colors.red),
-                      ),
-                    ),
-                  ),
-                  Text('${value.toStringAsFixed(0)}%',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: color)),
-                ],
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 4),
-                  Text(subtitle, style: theme.textTheme.bodyMedium),
-                  if (detail.isNotEmpty) ...[
-                    const SizedBox(height: 2),
-                    Text(detail,
-                        style: theme.textTheme.bodySmall
-                            ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
-                  ],
-                ],
-              ),
-            ),
+            Text(title, style: theme.textTheme.titleSmall),
+            const SizedBox(height: 8),
+            LinearProgressIndicator(value: value / 100, backgroundColor: color.withOpacity(0.15), valueColor: AlwaysStoppedAnimation(color)),
+            const SizedBox(height: 8),
+            Text(subtitle, style: theme.textTheme.bodyMedium),
+            if (detail.isNotEmpty) Text(detail, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
           ],
         ),
       ),
@@ -121,50 +121,18 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildDiskCard(ThemeData theme, DiskInfo disk) {
     return Card(
+      color: theme.colorScheme.surfaceVariant,
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              width: 72,
-              height: 72,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  SizedBox(
-                    width: 64,
-                    height: 64,
-                    child: CircularProgressIndicator(
-                      value: disk.usage / 100,
-                      strokeWidth: 6,
-                      backgroundColor: Colors.orange.withOpacity(0.15),
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        disk.usage < 50 ? Colors.orange : (disk.usage < 80 ? Colors.orange : Colors.red),
-                      ),
-                    ),
-                  ),
-                  Text('${disk.usage.toStringAsFixed(0)}%',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.orange)),
-                ],
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('磁盘 (${disk.mount})',
-                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 4),
-                  Text('${disk.used.toStringAsFixed(1)} GB / ${disk.total.toStringAsFixed(1)} GB',
-                      style: theme.textTheme.bodyMedium),
-                  const SizedBox(height: 2),
-                  Text('文件系统: ${disk.fs}',
-                      style: theme.textTheme.bodySmall
-                          ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
-                ],
-              ),
-            ),
+            Text('存储 (${disk.mount})', style: theme.textTheme.titleSmall),
+            const SizedBox(height: 8),
+            LinearProgressIndicator(value: disk.usage / 100, backgroundColor: Colors.orange.withOpacity(0.15), valueColor: const AlwaysStoppedAnimation(Colors.orange)),
+            const SizedBox(height: 8),
+            Text('${disk.used.toStringAsFixed(1)} GB / ${disk.total.toStringAsFixed(1)} GB', style: theme.textTheme.bodyMedium),
+            Text('文件系统: ${disk.fs}', style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
           ],
         ),
       ),
@@ -173,34 +141,17 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildGpuCard(ThemeData theme, GpuInfo gpu) {
     return Card(
+      color: theme.colorScheme.surfaceVariant,
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: Colors.purple.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Icon(Icons.videocam, size: 32, color: Colors.purple),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('GPU', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 4),
-                  Text(gpu.model, style: theme.textTheme.bodyMedium),
-                  const SizedBox(height: 2),
-                  Text('${gpu.vendor} · 显存 ${gpu.memoryUsed.toStringAsFixed(0)} MB / ${gpu.memoryTotal.toStringAsFixed(0)} MB',
-                      style: theme.textTheme.bodySmall
-                          ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
-                ],
-              ),
-            ),
+            Text('GPU', style: theme.textTheme.titleSmall),
+            const SizedBox(height: 8),
+            Text(gpu.model, style: theme.textTheme.bodyMedium),
+            Text('${gpu.vendor} · 显存 ${gpu.memoryUsed.toStringAsFixed(0)} MB / ${gpu.memoryTotal.toStringAsFixed(0)} MB',
+                style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
           ],
         ),
       ),

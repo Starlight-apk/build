@@ -18,10 +18,28 @@ class _ToolsPageState extends State<ToolsPage> {
     final theme = Theme.of(context);
 
     if (_currentPage == 'system') {
-      return const SystemDetailPage();
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('系统信息'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => setState(() => _currentPage = null),
+          ),
+        ),
+        body: const SystemDetailPage(),
+      );
     }
     if (_currentPage == 'network') {
-      return const NetworkToolsPage();
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('网络工具'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => setState(() => _currentPage = null),
+          ),
+        ),
+        body: const NetworkToolsPage(),
+      );
     }
 
     return Scaffold(

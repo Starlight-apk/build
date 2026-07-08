@@ -74,8 +74,24 @@ class SettingsPage extends StatelessWidget {
                           );
                         }).toList(),
                       ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        decoration: const InputDecoration(
+                          labelText: 'HEX 颜色值',
+                          hintText: '#6750A4',
+                          border: OutlineInputBorder(),
+                        ),
+                        onSubmitted: (value) {
+                          final hex = value.trim();
+                          if (hex.startsWith('#') && hex.length == 7) {
+                            final color = Color(int.parse(hex.substring(1), radix: 16) + 0xFF000000);
+                            settings.setSeedColor(color);
+                          }
+                        },
+                      ),
                     ],
                   ),
+                ),
                 ),
               ],
             ),
@@ -87,7 +103,7 @@ class SettingsPage extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.info_outline),
                   title: const Text('版本'),
-                  subtitle: const Text('v0.1.3'),
+                  subtitle: const Text('v0.1.4'),
                 ),
                 const Divider(height: 1),
                 ListTile(

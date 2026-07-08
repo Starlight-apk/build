@@ -35,8 +35,8 @@ jobs:
           cp assets/ic_launcher_foreground.png android/app/src/main/res/drawable/ic_launcher_foreground.png
           echo "===== 图标替换完毕 ====="
 
-      - name: 构建 APK
-        run: flutter build apk --debug --target-platform android-arm64 --split-per-abi
+      - name: 构建 APK (arm64-v8a)
+        run: flutter build apk --debug --target-platform android-arm64
 
       - name: 删除旧 Release
         run: |
