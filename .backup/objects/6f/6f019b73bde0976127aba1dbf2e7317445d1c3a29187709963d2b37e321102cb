@@ -1,0 +1,176 @@
+import React, { useState, useEffect, useRef } from 'react'
+import { Box, Card, CardContent, Typography, IconButton, Tab, Tabs, Divider } from '@mui/material'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import WifiIcon from '@mui/icons-material/Wifi'
+import LanIcon from '@mui/icons-material/Lan'
+import PingIcon from '@mui/icons-material/Timeline'
+import PeopleIcon from '@mui/icons-material/People'
+
+interface Props { onBack: () => void }
+
+const mockPorts = [
+  { port: 21, service: 'FTP', status: 'closed' as const },
+  { port: 22, service: 'SSH', status: 'closed' as const },
+  { port: 23, service: 'Telnet', status: 'closed' as const },
+  { port: 25, service: 'SMTP', status: 'closed' as const },
+  { port: 53, service: 'DNS', status: 'open' as const },
+  { port: 80, service: 'HTTP', status: 'open' as const },
+  { port: 110, service: 'POP3', status: 'closed' as const },
+  { port: 443, service: 'HTTPS', status: 'open' as const },
+  { port: 3306, service: 'MySQL', status: 'closed' as const },
+  { port: 8080, service: 'HTTP-Alt', status: 'open' as const },
+]
+
+const mockConns = [
+  { proto: 'TCP', local: '192.168.1.100:54321', remote: '142.250.80.46:443', state: '已建立' },
+  { proto: 'TCP', local: '192.168.1.100:54322', remote: '104.16.24.10:443', state: '已建立' },
+  { proto: 'UDP', local: '192.168.1.100:5353', remote: '*:*', state: '监听中' },
+  { proto: 'TCP', local: '192.168.1.100:54323', remote: '13.107.4.52:80', state: '等待中' },
+  { proto: 'TCP', local: '192.168.1.100:54324', remote: '151.101.1.140:443', state: '已建立' },
+]
+
+const tabs = ['网络状态', '端口扫描', 'Ping 延迟', '连接状态']
+
+export const NetworkToolsPage: React.FC<Props> = ({ onBack }) => {
+  const [tab, setTab] = useState(0)
+
+  return (
+    <Box sx={{ pb: 4 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', px: 2, pt: 1 }}>
+        <IconButton onClick={onBack} sx={{ mr: 1 }}><ArrowBackIcon /></IconButton>
+        <Typography variant="h5">网络工具</Typography>
+      </Box>
+      <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="scrollable" scrollButtons="auto" sx={{ px: 1 }}>
+        {tabs.map(t => <Tab key={t} label={t} />)}
+      </Tabs>
+
+      {tab === 0 && <NetworkStatus />}
+      {tab === 1 && <PortScanner />}
+      {tab === 2 && <PingGraph />}
+      {tab === 3 && <Connections />}
+    </Box>
+  )
+}
+
+function NetworkStatus() {
+  const [info, setInfo] = useState({
+    ip: '192.168.1.100', gateway: '192.168.1.1', dns: '8.8.8.8',
+    wifi: 'StarLink-5G', speed: '866 Mbps', type: 'WiFi 5GHz', mac: 'AA:BB:CC:11:22:33',
+    externalIp: '114.114.114.xxx', isp: '中国电信',
+  })
+
+  return (
+    <Box sx={{ px: 2 }}>
+      <Card variant="outlined" sx={{ mb: 2 }}>
+        <CardContent>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}><WifiIcon sx={{ color: 'primary.main', mr: 1 }} /><Typography variant="h6">当前网络</Typography></Box>
+          <Divider sx={{ mb: 1.5 }} />
+          <Row label="WiFi 名称" value={info.wifi} />
+          <Row label="网络类型" value={info.type} />
+          <Row label="连接速度" value={info.speed} />
+          <Row label="MAC 地址" value={info.mac} />
+        </CardContent>
+      </Card>
+      <Card variant="outlined" sx={{ mb: 2 }}>
+        <CardContent>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}><LanIcon sx={{ color: 'primary.main', mr: 1 }} /><Typography variant="h6">IP 信息</Typography></Box>
+          <Divider sx={{ mb: 1.5 }} />
+          <Row label="内网 IP" value={info.ip} />
+          <Row label="网关" value={info.gateway} />
+          <Row label="DNS" value={info.dns} />
+          <Row label="外网 IP" value={info.externalIp} />
+          <Row label="运营商" value={info.isp} />
+        </CardContent>
+      </Card>
+    </Box>
+  )
+}
+
+function PortScanner() {
+  return (
+    <Box sx={{ px: 2 }}>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>扫描目标: 本机 (127.0.0.1)</Typography>
+      {mockPorts.map(p => (
+        <Card key={p.port} variant="outlined" sx={{ mb: 1 }}>
+          <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1.5, '&:last-child': { pb: 1.5 } }}>
+            <Box>
+              <Typography variant="body2" fontWeight={600}>{p.port}</Typography>
+              <Typography variant="caption" color="text.secondary">{p.service}</Typography>
+            </Box>
+            <Box sx={{ px: 1.5, py: 0.3, borderRadius: 1, bgcolor: p.status === 'open' ? '#4caf5020' : '#f4433620', color: p.status === 'open' ? '#4caf50' : '#f44336' }}>
+              <Typography variant="caption" fontWeight={600}>{p.status === 'open' ? '开放' : '关闭'}</Typography>
+            </Box>
+          </CardContent>
+        </Card>
+      ))}
+    </Box>
+  )
+}
+
+function PingGraph() {
+  const [points, setPoints] = useState<number[]>([])
+  const timerRef = useRef<ReturnType<typeof setInterval>>()
+
+  useEffect(() => {
+    timerRef.current = setInterval(() => {
+      setPoints(prev => {
+        const next = [...prev, Math.round(15 + Math.random() * 85)]
+        return next.length > 20 ? next.slice(-20) : next
+      })
+    }, 800)
+    return () => clearInterval(timerRef.current)
+  }, [])
+
+  const max = Math.max(...points, 100)
+  const avg = points.length > 0 ? Math.round(points.reduce((a, b) => a + b, 0) / points.length) : 0
+
+  return (
+    <Box sx={{ px: 2 }}>
+      <Card variant="outlined" sx={{ mb: 2 }}>
+        <CardContent>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+            <Typography variant="body2" color="text.secondary">实时延迟 (ms)</Typography>
+            <Typography variant="body2" fontWeight={600} color={avg < 50 ? 'primary.main' : avg < 100 ? 'warning.main' : 'error.main'}>
+              平均: {avg}ms
+            </Typography>
+          </Box>
+          <Box sx={{ height: 120, display: 'flex', alignItems: 'flex-end', gap: 0.5 }}>
+            {points.map((v, i) => (
+              <Box key={i} sx={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column-reverse' }}>
+                <Box sx={{ height: `${(v / max) * 100}%`, bgcolor: v < 50 ? '#4caf50' : v < 100 ? '#ff9800' : '#f44336', borderRadius: '2px 2px 0 0', minHeight: 4, transition: 'height 0.2s' }} />
+              </Box>
+            ))}
+          </Box>
+          <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+            目标: 8.8.8.8  |  最近: {points.length > 0 ? points[points.length - 1] : '-'}ms
+          </Typography>
+        </CardContent>
+      </Card>
+    </Box>
+  )
+}
+
+function Connections() {
+  return (
+    <Box sx={{ px: 2 }}>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>当前连接: {mockConns.length} 条</Typography>
+      {mockConns.map((c, i) => (
+        <Card key={i} variant="outlined" sx={{ mb: 1 }}>
+          <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
+            <Row label="协议" value={`${c.proto}`} />
+            <Row label="本地地址" value={c.local} />
+            <Row label="远程地址" value={c.remote} />
+            <Row label="状态" value={c.state} />
+          </CardContent>
+        </Card>
+      ))}
+    </Box>
+  )
+}
+
+const Row: React.FC<{ label: string; value: string }> = ({ label, value }) => (
+  <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.3 }}>
+    <Typography variant="body2" color="text.secondary">{label}</Typography>
+    <Typography variant="body2">{value}</Typography>
+  </Box>
+)

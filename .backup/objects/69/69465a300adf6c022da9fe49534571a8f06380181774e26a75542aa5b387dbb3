@@ -1,0 +1,83 @@
+import React, { useState } from 'react'
+import { Box, Card, CardContent, Typography, IconButton } from '@mui/material'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import InfoIcon from '@mui/icons-material/InfoOutlined'
+import SpeedIcon from '@mui/icons-material/Speed'
+import { SystemDetailPage } from './SystemDetailPage'
+import { useNotification } from '../components/NotificationStack'
+
+interface Props {
+  onBack: () => void
+}
+
+const animEnter = {
+  animation: 'm3-enter 0.3s cubic-bezier(0.2, 0.0, 0.0, 1.0)',
+  '@keyframes m3-enter': {
+    '0%': { transform: 'translateX(100%)', opacity: 0 },
+    '100%': { transform: 'translateX(0)', opacity: 1 },
+  },
+}
+
+const animExit = {
+  animation: 'm3-exit 0.25s ease-in forwards',
+  '@keyframes m3-exit': {
+    '0%': { transform: 'translateX(0)', opacity: 1 },
+    '100%': { transform: 'translateX(100%)', opacity: 0 },
+  },
+}
+
+export const SystemPage: React.FC<Props> = ({ onBack }) => {
+  const { notes, show } = useNotification()
+  const [sub, setSub] = useState<'menu' | 'detail'>('menu')
+  const [exiting, setExiting] = useState(false)
+
+  const goToDetail = () => setSub('detail')
+  const goBackFromDetail = () => {
+    setExiting(true)
+    setTimeout(() => {
+      setSub('menu')
+      setExiting(false)
+    }, 240)
+  }
+
+  return (
+    <Box sx={{ position: 'relative', height: '100%' }}>
+      {/* 菜单页 - 始终渲染 */}
+      <Box sx={{ p: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <IconButton onClick={onBack} sx={{ mr: 1 }}><ArrowBackIcon /></IconButton>
+          <Typography variant="h5">系统</Typography>
+        </Box>
+        <Card variant="outlined" sx={{ cursor: 'pointer', mb: 2, transition: '0.2s', '&:hover': { transform: 'scale(0.97)' } }} onClick={goToDetail}>
+          <CardContent>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: '#1976d21A', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1976d2', mr: 2 }}><InfoIcon /></Box>
+              <Box>
+                <Typography variant="subtitle1" fontWeight={600}>系统信息</Typography>
+                <Typography variant="body2" color="text.secondary">查看 CPU、内存、磁盘等详细信息</Typography>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+        <Card variant="outlined" sx={{ cursor: 'pointer', transition: '0.2s', '&:hover': { transform: 'scale(0.97)' } }} onClick={() => show('性能监控功能开发中，敬请期待！')}>
+          <CardContent>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: '#2e7d321A', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2e7d32', mr: 2 }}><SpeedIcon /></Box>
+              <Box>
+                <Typography variant="subtitle1" fontWeight={600}>性能监控</Typography>
+                <Typography variant="body2" color="text.secondary">实时监控系统性能（开发中）</Typography>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+      </Box>
+
+      {/* 子页面覆盖层 */}
+      {sub === 'detail' && (
+        <Box sx={{ position: 'absolute', inset: 0, bgcolor: 'background.default', ...(exiting ? animExit : animEnter) }}>
+          <SystemDetailPage onBack={goBackFromDetail} />
+        </Box>
+      )}
+    </Box>
+  )
+}

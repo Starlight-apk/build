@@ -1,0 +1,165 @@
+import React, { useState, useMemo, useCallback, useEffect } from 'react'
+import { ThemeProvider, createTheme, CssBaseline, Box, AppBar, Toolbar, Typography, IconButton, useMediaQuery } from '@mui/material'
+import DashboardIcon from '@mui/icons-material/Dashboard'
+import BuildIcon from '@mui/icons-material/Build'
+import SettingsIcon from '@mui/icons-material/Settings'
+import InfoIcon from '@mui/icons-material/Info'
+import RefreshIcon from '@mui/icons-material/Refresh'
+import { useNotification, NotificationStack } from './components/NotificationStack'
+import { HomePage } from './pages/HomePage'
+import { ToolsPage } from './pages/ToolsPage'
+import { SettingsPage } from './pages/SettingsPage'
+import { AboutPage } from './pages/AboutPage'
+
+function loadSettings() {
+  try {
+    const raw = localStorage.getItem('startool-settings')
+    if (raw) {
+      const s = JSON.parse(raw)
+      return {
+        dark: !!s.dark,
+        color: typeof s.color === 'string' ? s.color : '#3f51b5',
+        refreshRate: typeof s.refreshRate === 'number' ? s.refreshRate : 2,
+        fontSize: s.fontSize || 'medium',
+        language: s.language || 'zh-CN',
+        dataUnit: s.dataUnit || 'GB',
+      }
+    }
+  } catch {}
+  return { dark: true, color: '#3f51b5', refreshRate: 2, fontSize: 'medium', language: 'zh-CN', dataUnit: 'GB' }
+}
+
+export const App: React.FC = () => {
+  const { notes, show } = useNotification()
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [darkMode, setDarkMode] = useState(() => loadSettings().dark)
+  const [seedColor, setSeedColor] = useState(() => loadSettings().color)
+  const [refreshRate, setRefreshRate] = useState(() => loadSettings().refreshRate)
+  const [fontSize, setFontSize] = useState(() => loadSettings().fontSize)
+  const [language, setLanguage] = useState(() => loadSettings().language)
+  const [dataUnit, setDataUnit] = useState(() => loadSettings().dataUnit)
+  const isWide = useMediaQuery('(min-width:768px)')
+
+  useEffect(() => {
+    localStorage.setItem('startool-settings', JSON.stringify({
+      dark: darkMode, color: seedColor, refreshRate, fontSize, language, dataUnit,
+    }))
+  }, [darkMode, seedColor, refreshRate, fontSize, language, dataUnit])
+
+  const handleToggleDark = useCallback(() => {
+    const el = document.querySelector('.MuiSwitch-root') as HTMLElement
+    let x = window.innerWidth / 2, y = window.innerHeight / 2
+    if (el) {
+      const rect = el.getBoundingClientRect()
+      x = rect.left + rect.width / 2
+      y = rect.top + rect.height / 2
+    }
+    const goingDark = !darkMode
+    const html = document.documentElement
+    const r = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y))
+    const small = `circle(0px at ${x}px ${y}px)`
+    const big = `circle(${r}px at ${x}px ${y}px)`
+    html.style.clipPath = big
+    setDarkMode(goingDark)
+    requestAnimationFrame(() => {
+      html.style.clipPath = small
+      requestAnimationFrame(() => {
+        html.animate([
+          { clipPath: small },
+          { clipPath: big },
+        ], { duration: 350, easing: 'ease-in-out', fill: 'forwards' }).onfinish = () => {
+          html.style.clipPath = ''
+        }
+      })
+    })
+  }, [darkMode])
+
+  const theme = useMemo(() => createTheme({
+    palette: { mode: darkMode ? 'dark' : 'light', primary: { main: seedColor } },
+    typography: {
+      fontFamily: '"Noto Sans SC", "Roboto", "Helvetica", "Arial", sans-serif',
+      fontSize: fontSize === 'small' ? 13 : fontSize === 'large' ? 17 : 14,
+    },
+    shape: { borderRadius: 12 },
+  }), [darkMode, seedColor, fontSize])
+
+  const navItems = [
+    { label: '概览', icon: <DashboardIcon /> },
+    { label: '工具', icon: <BuildIcon /> },
+    { label: '设置', icon: <SettingsIcon /> },
+    { label: '关于', icon: <InfoIcon /> },
+  ]
+
+  const settingsProps = {
+    darkMode, onToggleDarkMode: handleToggleDark, seedColor, onChangeColor: setSeedColor,
+    refreshRate, onChangeRefreshRate: setRefreshRate,
+    fontSize, onChangeFontSize: setFontSize,
+    language, onChangeLanguage: setLanguage,
+    dataUnit, onChangeDataUnit: setDataUnit,
+  }
+
+  if (isWide) {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Box sx={{ display: 'flex', height: '100vh' }}>
+          <Box sx={{ width: 72, borderRight: 1, borderColor: 'divider', bgcolor: 'background.paper', display: 'flex', flexDirection: 'column', alignItems: 'center', pt: 2, gap: 0.5 }}>
+            {navItems.map((item, index) => (
+              <Box key={item.label} onClick={() => setActiveIndex(index)} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', px: 1, py: 1, borderRadius: 2, width: 64, bgcolor: activeIndex === index ? 'action.selected' : 'transparent', color: activeIndex === index ? 'primary.main' : 'text.secondary' }}>
+                {item.icon}
+                <Typography variant="caption" sx={{ mt: 0.5, fontSize: 11 }}>{item.label}</Typography>
+              </Box>
+            ))}
+          </Box>
+          <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+            <AppBar position="sticky" elevation={0} sx={{ bgcolor: 'background.paper', color: 'text.primary', borderBottom: 1, borderColor: 'divider' }}>
+              <Toolbar>
+                <Typography variant="h6" sx={{ flexGrow: 1 }}>{navItems[activeIndex].label}</Typography>
+                <IconButton size="small" onClick={() => setActiveIndex(0)}><RefreshIcon /></IconButton>
+              </Toolbar>
+            </AppBar>
+            <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+              <Box key={'w' + activeIndex} sx={{ animation: 'fade-up 0.2s ease-out', '@keyframes fade-up': { '0%': { opacity: 0, transform: 'translateY(8px)' }, '100%': { opacity: 1, transform: 'translateY(0)' } } }}>
+                {activeIndex === 0 && <HomePage />}
+                {activeIndex === 1 && <ToolsPage />}
+                {activeIndex === 2 && <SettingsPage {...settingsProps} />}
+                {activeIndex === 3 && <AboutPage />}
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+      </ThemeProvider>
+    )
+  }
+
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+        <AppBar position="sticky" elevation={0} sx={{ bgcolor: 'background.paper', color: 'text.primary', borderBottom: 1, borderColor: 'divider' }}>
+          <Toolbar>
+            <Typography variant="h6" sx={{ flexGrow: 1 }}>{navItems[activeIndex].label}</Typography>
+            <IconButton size="small" onClick={() => setActiveIndex(0)}><RefreshIcon /></IconButton>
+          </Toolbar>
+        </AppBar>
+        <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+          <Box key={activeIndex} sx={{ animation: 'fade-up 0.2s ease-out', '@keyframes fade-up': { '0%': { opacity: 0, transform: 'translateY(8px)' }, '100%': { opacity: 1, transform: 'translateY(0)' } } }}>
+            {activeIndex === 0 && <HomePage />}
+            {activeIndex === 1 && <ToolsPage />}
+            {activeIndex === 2 && <SettingsPage {...settingsProps} />}
+            {activeIndex === 3 && <AboutPage />}
+          </Box>
+        </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'space-around', py: 1, borderTop: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
+          {navItems.map((item, index) => (
+            <Box key={item.label} onClick={() => setActiveIndex(index)} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', px: 2, py: 0.5, borderRadius: 2, bgcolor: activeIndex === index ? 'action.selected' : 'transparent', color: activeIndex === index ? 'primary.main' : 'text.secondary' }}>
+              {item.icon}
+              <Typography variant="caption" sx={{ mt: 0.5 }}>{item.label}</Typography>
+            </Box>
+          ))}
+</Box>
+      </Box>
+      <NotificationStack notes={notes} />
+    </ThemeProvider>
+  )
+}
