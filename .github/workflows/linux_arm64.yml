@@ -31,6 +31,8 @@ jobs:
       - name: Install arm64 cross-compilation dependencies
         run: |
           sudo dpkg --add-architecture arm64
+          # 添加 arm64 的 noble main 源（安全/更新源没有 arm64 包，只加 main）
+          echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble main universe" | sudo tee /etc/apt/sources.list.d/arm64.list
           sudo apt-get update
           sudo apt-get install -y \
             crossbuild-essential-arm64 \
