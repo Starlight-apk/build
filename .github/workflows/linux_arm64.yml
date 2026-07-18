@@ -61,6 +61,18 @@ jobs:
           VERSION=$(grep '^version: ' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
           echo "version=$VERSION" >> $GITHUB_ENV
 
+      - name: 生成构建配置（pili_release.json）
+        shell: bash
+        run: |
+          VERSION_NAME=$(grep '^version: ' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
+          VERSION_CODE=$(git rev-list --count HEAD 2>/dev/null || echo "1")
+          COMMIT_HASH=$(git rev-parse HEAD 2>/dev/null || echo "unknown")
+          BUILD_TIME=$(date +%s)
+          cat > pili_release.json << EOF
+          {"pili.name":"$VERSION_NAME","pili.code":$VERSION_CODE,"pili.hash":"$COMMIT_HASH","pili.time":$BUILD_TIME}
+          EOF
+          echo "Generated pili_release.json: $(cat pili_release.json)"
+
       - name: 构建 Linux arm64
         run: |
           flutter build linux --release -v --pub \
