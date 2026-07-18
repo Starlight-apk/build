@@ -1,0 +1,128 @@
+name: Build for Linux arm64
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "**.md"
+  workflow_dispatch:
+
+jobs:
+  build-linux-arm64:
+    name: Release Linux arm64
+    runs-on: ubuntu-latest
+    permissions: write-all
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Install arm64 cross-compilation dependencies
+        run: |
+          sudo dpkg --add-architecture arm64
+          sudo apt-get update
+          sudo apt-get install -y \
+            crossbuild-essential-arm64 \
+            libgtk-3-dev:arm64 \
+            libayatana-appindicator3-dev:arm64 \
+            libwebkit2gtk-4.1-dev:arm64 \
+            libasound2-dev:arm64 \
+            libmpv-dev:arm64 \
+            pkg-config-aarch64-linux-gnu
+        shell: bash
+
+      - name: Setup flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version-file: pubspec.yaml
+          cache: true
+
+      - name: Extract version
+        shell: bash
+        run: |
+          VERSION=$(grep '^version: ' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
+          echo "version=$VERSION" >> $GITHUB_ENV
+
+      - name: Build Linux arm64
+        run: |
+          flutter build linux --release -v --pub \
+            --target-platform=linux-arm64 \
+            --dart-define-from-file=pili_release.json
+        env:
+          PKG_CONFIG_PATH: /usr/lib/aarch64-linux-gnu/pkgconfig
+          PKG_CONFIG_SYSROOT_DIR: /
+          CXX: aarch64-linux-gnu-g++
+          CC: aarch64-linux-gnu-gcc
+          AR: aarch64-linux-gnu-ar
+          STRIP: aarch64-linux-gnu-strip
+          RANLIB: aarch64-linux-gnu-ranlib
+
+      - name: Locate bundle dir
+        id: bundle
+        run: |
+          for d in build/linux/arm64/release/bundle build/linux/aarch64/release/bundle; do
+            [ -d "$d" ] && echo "dir=$d" >> $GITHUB_OUTPUT && exit 0
+          done
+          BUNDLE=$(find build/linux -type d -name "bundle" | head -1)
+          echo "dir=$BUNDLE" >> $GITHUB_OUTPUT
+
+      - name: Package .tar.gz
+        run: |
+          tar -zcvf "PiliPlus_linux_${version}_arm64.tar.gz" \
+            -C "${{ steps.bundle.outputs.dir }}" .
+
+      - name: Package .deb
+        run: |
+          mkdir "PiliPlus_linux_${version}_arm64"
+          pushd "PiliPlus_linux_${version}_arm64"
+          mkdir -p opt/PiliPlus usr/share/applications usr/share/icons/hicolor/512x512/apps
+          cp -r "../${{ steps.bundle.outputs.dir }}"/* opt/PiliPlus
+          cp -r ../assets/linux/DEBIAN .
+          cp ../assets/linux/com.example.piliplus.desktop usr/share/applications
+          cp ../assets/images/logo/logo.png usr/share/icons/hicolor/512x512/apps/piliplus.png
+          sed -i "2s/version_need_change/$version/g" DEBIAN/control
+          sed -i "7s/amd64/arm64/g" DEBIAN/control
+          SIZE_KB=$(( ( $(du -s -b --apparent-size . | awk '{print $1}') - $(du -s -b --apparent-size DEBIAN | awk '{print $1}') + 1023) / 1024 ))
+          sed -i "9s/size_need_change/${SIZE_KB}/g" DEBIAN/control
+          find opt -type f -exec md5sum {} \; > DEBIAN/md5sums
+          chmod 0644 DEBIAN/control DEBIAN/md5sums
+          for f in postinst postrm prerm; do [ -f "DEBIAN/$f" ] && chmod 0755 "DEBIAN/$f"; done
+          popd
+          dpkg-deb --build --root-owner-group "PiliPlus_linux_${version}_arm64"
+
+      - name: Create Release & Upload Assets
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: v${{ env.version }}-arm64
+          name: "v${{ env.version }} (Linux arm64)"
+          body: |
+            ## PiliPlus v${{ env.version }} Linux arm64
+
+            - 架构: arm64 (aarch64)
+            - 基于 commit: ${{ github.sha }}
+          files: |
+            PiliPlus_linux_*.tar.gz
+            PiliPlus_linux_*.deb
+          fail_on_unmatched_files: false
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          archive: false
+          name: Linux_arm64_packages
+          path: |
+            PiliPlus_linux_*.tar.gz
+            PiliPlus_linux_*.deb
