@@ -3,6 +3,10 @@
 ln -sf /opt/PiliPlus/piliplus /usr/bin/piliplus
 chmod +x /usr/bin/piliplus
 
+# 安装启动 wrapper
+cp /opt/PiliPlus/piliplus-wrapper.sh /usr/bin/piliplus-wrapper
+chmod +x /usr/bin/piliplus-wrapper
+
 if [ $1 == "configure" ] && [ -x /usr/bin/update-mime-database ]; then
     echo "updating mime database..."
     update-mime-database  /usr/share/mime || true
