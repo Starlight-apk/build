@@ -117,7 +117,12 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           archive: false
-          name: Linux_arm64_构建产物
-          path: |
-            PiliPlus_linux_*.tar.gz
-            PiliPlus_linux_*.deb
+          name: Linux_arm64_构建产物_deb
+          path: PiliPlus_linux_*.deb
+
+      - name: 上传 tar.gz 构建产物
+        uses: actions/upload-artifact@v7
+        with:
+          archive: false
+          name: Linux_arm64_构建产物_tar
+          path: PiliPlus_linux_*.tar.gz
