@@ -1,5 +1,5 @@
 # 在 arm64 容器内原生构建 PiliPlus Linux arm64
-FROM arm64v8a/ubuntu:24.04 AS builder
+FROM --platform=linux/arm64 ubuntu:24.04 AS builder
 
 # 安装构建依赖
 RUN apt-get update && apt-get install -y \
